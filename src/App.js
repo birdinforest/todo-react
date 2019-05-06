@@ -4,6 +4,9 @@ import TodoForm from './components/TodoComponents/TodoForm'
 import Container from 'react-bootstrap/Container'
 // import logo from './logo.svg'
 // import './App.css'
+import axios from 'axios'
+
+const BASE_API_ADDRESS = 'https://general-api.herokuapp.com/manager/entries'
 
 class App extends Component {
   constructor (props) {
@@ -22,8 +25,8 @@ class App extends Component {
     this.setState({[event.target.name]: event.target.value})
   }
 
-  // Create new task object based on property 'todo'.
-  // Add new task into array property 'todos'
+  // Create new content object based on property 'todo'.
+  // Add new content into array property 'todos'
   addTask = event => {
     event.preventDefault()
 
@@ -33,7 +36,7 @@ class App extends Component {
     }
 
     let newTask = {
-      task: this.state.todo,
+      content: this.state.todo,
       id: Date.now().toString(),
       completed: false,
     }
@@ -44,6 +47,8 @@ class App extends Component {
       todos: [...this.state.todos, newTask],
       todo: ''    // Reset property 'todo' to be empty.
     })
+
+    this.postEntryToDb({content: newTask.content, completed: newTask.completed});
   }
 
   toggleComplete = itemId => {
@@ -78,15 +83,62 @@ class App extends Component {
     }
   }
 
+  /**
+   * Get all entries from DB.
+   * Structure of res:
+   * {
+   *   config:{},
+   *   data:{
+   *      data:[
+   *      {
+   *          _id:Number,
+   *          content:String,
+   *          location:String
+   *          completed:Boolean
+   *      },
+   *      {}
+   *      ],
+   *      success: Boolean,
+   *      [message: String]
+   *   },
+   *   headers:{}
+   *   request:{}
+   *   status: Number
+   *   statusText: String
+   * }
+   */
+  getAllEntriesFromDb () {
+    axios.get(BASE_API_ADDRESS).then(res => {
+      this.setState({todos: res.data.data})
+    })
+  }
+
+  postEntryToDb (data) {
+    axios.post(BASE_API_ADDRESS, data)
+      .then(res => {
+        console.log(res)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+
+    // Todo: If entry can't be posted to DB in any reason, cacher it in local storage
+    //  and try to post later. Hence pop up a message to notice user.
+  }
+
   componentDidMount () {
-    this.addLocalStorage()
-    window.addEventListener(
-      'beforeunload',
-      this.saveLocalStorage.bind(this)
-    )
+    // Todo:
+    //  1.Read data from local storage.
+    //  2. Register listener to save data to local storage.
+
+    this.getAllEntriesFromDb()
   }
 
   componentWillUnmount () {
+    // Todo:
+    //  1.Remove listeners.
+    //  2.Reset setting/variable.
+
     window.removeEventListener(
       'beforeunload',
       this.saveLocalStorage.bind(this)

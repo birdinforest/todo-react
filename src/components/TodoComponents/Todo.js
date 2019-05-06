@@ -14,7 +14,7 @@ class Todo extends React.Component {
       <Card style={{width: '18rem'}}
             onClick={(event) => this.props.toggleComplete(this.props.id)}>
         <Card.Body>
-          <Card.Title>{this.props.task}</Card.Title>
+          <Card.Title>{this.props.content}</Card.Title>
           <Card.Text>
           </Card.Text>
         </Card.Body>
@@ -24,7 +24,7 @@ class Todo extends React.Component {
 }
 
 Todo.propTypes = {
-  task: PropTypes.string.isRequired,
+  content: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   completed: PropTypes.bool,
 }
